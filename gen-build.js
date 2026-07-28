@@ -257,7 +257,8 @@ function poemSlide(s) {
   const top=n<=4?400:n<=6?340:n<=8?290:250;
   const lines=s.lines.map(function(t,i){return'<div class="pline r" style="--i:'+i+';font-size:'+fs+'px">'+esc(t)+'</div>';}).join('');
   const seqAttr=s.lines&&s.lines.length?' data-seq=\''+JSON.stringify(s.lines).replace(/'/g,'&#39;')+'\'':'';
-  const spkTop=Math.min(top+n*(fs*1.3+gap),860);
+  const realH=n*fs*1.3+(n-1)*gap;
+  const spkTop=Math.min(top+realH+44,880);
   return'<section class="slide" data-name="'+esc(s.label||'\u8bfb\u4e00\u8bfb')+'"><div class="tag r" style="--i:0">'+esc(s.label||'\u8bfb\u4e00\u8bfb')+'</div><div class="title r" style="--i:1;font-size:80px">'+esc(s.head||'\u8bfb\u4e00\u8bfb')+'</div><div class="poem" style="top:'+top+'px;gap:'+gap+'px">'+lines+'</div>'+(seqAttr?'<div style="position:absolute;top:'+spkTop+'px;left:0;right:0;display:flex;justify-content:center;z-index:2"><button class="speak-count"'+seqAttr+'>\u{1F50A} \u8bfb\u4e00\u8bfb</button></div>':'')+'<div class="hint">\u4e00\u53e5\u4e00\u53e5\u8ddf\u7740\u5ff5\uff0c\u70b9 \u{1F50A} \u542c</div></section>';
 }
 

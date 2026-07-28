@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>比大小 · 新做法预览（配对演示）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#FFF6E6;--card:#FFFFFF;--ink:#3A3A4A;--soft:#FFF3DF;--orange:#FF9F45;--green:#6FCF7E;--blue:#5AA9E6;--py:#E8743B;--shadow:0 18px 40px rgba(255,159,69,.20);}
+*{margin:0;box-sizing:border-box;}html,body{height:100%;}
+body{font-family:'Noto Serif SC',serif;color:var(--ink);overflow:hidden;background:radial-gradient(circle at 30% 20%,#FFFDF6,#FFE4BE 75%);}
+.viewport{position:fixed;inset:0;display:grid;place-items:center;}
+.stage{width:1920px;height:1080px;position:relative;transform-origin:center center;background:linear-gradient(160deg,#FFF9EF,#FFF0D6);border-radius:48px;overflow:hidden;box-shadow:0 30px 80px rgba(180,120,40,.28);}
+.head{position:absolute;top:48px;left:0;right:0;text-align:center;}
+.head h1{font-size:60px;font-weight:900;letter-spacing:4px;}
+.head p{font-family:'Nunito';font-weight:700;font-size:28px;color:#C79A5E;margin-top:8px;}
+.panels{position:absolute;top:190px;left:0;right:0;display:flex;justify-content:center;gap:46px;}
+.panel{width:590px;height:760px;background:var(--card);border-radius:40px;box-shadow:var(--shadow);border:7px solid #FFE2BC;display:flex;flex-direction:column;align-items:center;padding-top:26px;}
+.ptitle{font-size:40px;font-weight:900;color:var(--orange);margin-bottom:10px;}
+.steps{font-family:'Nunito';font-weight:700;font-size:24px;color:#B58A55;margin-top:14px;text-align:center;line-height:1.5;}
+.match{position:relative;width:540px;height:500px;margin-top:10px;}
+.row{position:absolute;left:0;right:0;}
+.row.top{top:30px;}.row.bot{top:300px;}
+.apple{position:absolute;width:64px;height:64px;font-size:60px;line-height:64px;text-align:center;opacity:0;transform:translateY(-26px);transition:opacity .5s, transform .5s, box-shadow .3s;}
+.match.show-apples .apple{opacity:1;transform:translateY(0);}
+.lines{position:absolute;top:30px;left:0;width:540px;height:330px;pointer-events:none;}
+.lines line{stroke:var(--orange);stroke-width:6;stroke-linecap:round;stroke-dasharray:280;stroke-dashoffset:280;transition:stroke-dashoffset .5s;}
+.match.show-lines .lines line{stroke-dashoffset:0;}
+.match.show-lines .lines line:nth-child(2){transition-delay:.35s}
+.match.show-lines .lines line:nth-child(3){transition-delay:.7s}
+.match.show-lines .lines line:nth-child(4){transition-delay:1.05s}
+.apple.extra{transition:opacity .5s, transform .5s, box-shadow .3s;}
+.match.show-extra .apple.extra{box-shadow:0 0 0 6px var(--green),0 0 26px rgba(111,207,126,.7);transform:translateY(0) scale(1.12);}
+.plus{position:absolute;font-family:'Nunito';font-weight:900;font-size:34px;color:#fff;background:var(--green);padding:6px 16px;border-radius:22px;opacity:0;transition:opacity .4s;transform:translateY(-6px);}
+.match.show-extra .plus{opacity:1;transform:translateY(0);}
+.sym{position:absolute;top:410px;left:0;right:0;text-align:center;font-family:'Nunito',sans-serif;font-weight:900;font-size:96px;color:var(--orange);opacity:0;transform:scale(.5);transition:opacity .5s, transform .5s;}
+.match.show-sym .sym{opacity:1;transform:scale(1);}
+.foot{position:absolute;bottom:26px;left:0;right:0;text-align:center;font-family:'Nunito';font-weight:700;font-size:24px;color:#B58A55;}
+</style>
+</head>
+<body>
+<div class="viewport">
+  <div class="stage" id="stage">
+    <div class="head"><h1>比大小 · 新做法预览</h1><p>先数 → 一一配对 → 看谁多出来 → 最后写符号</p></div>
+    <div class="panels">
+      <!-- 大于 5 vs 3 -->
+      <div class="panel">
+        <div class="ptitle">大于：5 比 3 多</div>
+        <div class="match" id="m1">
+          <div class="row top">
+            <span class="apple" style="left:30px">🍎</span>
+            <span class="apple" style="left:150px">🍎</span>
+            <span class="apple" style="left:270px">🍎</span>
+            <span class="apple extra" style="left:390px">🍎</span>
+            <span class="apple extra" style="left:470px">🍎</span>
+          </div>
+          <div class="row bot">
+            <span class="apple" style="left:30px">🍎</span>
+            <span class="apple" style="left:150px">🍎</span>
+            <span class="apple" style="left:270px">🍎</span>
+          </div>
+          <svg class="lines" viewBox="0 0 540 330"><line x1="62" y1="32" x2="62" y2="300"/><line x1="182" y1="32" x2="182" y2="300"/><line x1="302" y1="32" x2="302" y2="300"/></svg>
+          <div class="plus" style="left:400px;top:6px">多2个</div>
+          <div class="sym">5 &gt; 3</div>
+        </div>
+        <div class="steps">①数：5 个、3 个<br>②一一配对（连 3 对）<br>③多出来 2 个 → 5 比 3 多<br>④写 5 &gt; 3</div>
+      </div>
+      <!-- 小于 3 vs 5 -->
+      <div class="panel">
+        <div class="ptitle">小于：3 比 5 少</div>
+        <div class="match" id="m2">
+          <div class="row top">
+            <span class="apple" style="left:30px">🍎</span>
+            <span class="apple" style="left:150px">🍎</span>
+            <span class="apple" style="left:270px">🍎</span>
+          </div>
+          <div class="row bot">
+            <span class="apple" style="left:30px">🍎</span>
+            <span class="apple" style="left:150px">🍎</span>
+            <span class="apple" style="left:270px">🍎</span>
+            <span class="apple extra" style="left:390px">🍎</span>
+            <span class="apple extra" style="left:470px">🍎</span>
+          </div>
+          <svg class="lines" viewBox="0 0 540 330"><line x1="62" y1="32" x2="62" y2="300"/><line x1="182" y1="32" x2="182" y2="300"/><line x1="302" y1="32" x2="302" y2="300"/></svg>
+          <div class="plus" style="left:400px;top:276px">少2个</div>
+          <div class="sym">3 &lt; 5</div>
+        </div>
+        <div class="steps">①数：3 个、5 个<br>②一一配对（连 3 对）<br>③少 2 个 → 3 比 5 少<br>④写 3 &lt; 5</div>
+      </div>
+      <!-- 等于 4 vs 4 -->
+      <div class="panel">
+        <div class="ptitle">等于：一样多</div>
+        <div class="match" id="m3">
+          <div class="row top">
+            <span class="apple" style="left:30px">🍎</span>
+            <span class="apple" style="left:150px">🍎</span>
+            <span class="apple" style="left:270px">🍎</span>
+            <span class="apple" style="left:390px">🍎</span>
+          </div>
+          <div class="row bot">
+            <span class="apple" style="left:30px">🍎</span>
+            <span class="apple" style="left:150px">🍎</span>
+            <span class="apple" style="left:270px">🍎</span>
+            <span class="apple" style="left:390px">🍎</span>
+          </div>
+          <svg class="lines" viewBox="0 0 540 330"><line x1="62" y1="32" x2="62" y2="300"/><line x1="182" y1="32" x2="182" y2="300"/><line x1="302" y1="32" x2="302" y2="300"/><line x1="422" y1="32" x2="422" y2="300"/></svg>
+          <div class="sym">4 = 4</div>
+        </div>
+        <div class="steps">①数：都是 4 个<br>②一一配对（连 4 对）<br>③没有多出来 → 一样多<br>④写 4 = 4</div>
+      </div>
+    </div>
+    <div class="foot">这就是准备改成的比大小做法：符号从「配对后多出来的」推导出来，不是直接给</div>
+  </div>
+</div>
+<script>
+function fit(){var s=Math.min(innerWidth/1920,innerHeight/1080);document.getElementById('stage').style.transform='scale('+s+')';}
+addEventListener('resize',fit);fit();
+function run(m){
+  m.classList.remove('show-sym','show-extra','show-lines','show-apples');
+  void m.offsetWidth;
+  setTimeout(function(){m.classList.add('show-apples');},120);
+  setTimeout(function(){m.classList.add('show-lines');},1300);
+  setTimeout(function(){m.classList.add('show-extra');},2700);
+  setTimeout(function(){m.classList.add('show-sym');},3700);
+}
+['m1','m2','m3'].forEach(function(id){var m=document.getElementById(id);run(m);setInterval(function(){run(m);},9200);});
+</script>
+</body>
+</html>
