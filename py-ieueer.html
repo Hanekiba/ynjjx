@@ -169,12 +169,13 @@ body.editing .editable{outline:2px dashed var(--blue);outline-offset:4px;cursor:
 .cface{width:100%;height:100%;}
 .clock-label{font-family:'Nunito',sans-serif;font-weight:800;font-size:40px;text-align:center;color:var(--ink);margin-top:16px;}
 /* -- 拼音 -- */
-.pygrid{position:absolute;top:330px;left:0;right:0;display:grid;grid-template-columns:repeat(3,260px);gap:20px 30px;justify-content:center;z-index:2;padding:0 40px;}
-.pycard{background:var(--card);border-radius:28px;box-shadow:var(--shadow);border:5px solid #c3dafe;padding:18px 20px;text-align:center;}
-.pycard .pylead{font-family:'Nunito',sans-serif;font-weight:900;font-size:56px;color:var(--blue);margin-bottom:6px;}
-.pycard .pytones{font-family:'Nunito',sans-serif;font-weight:800;font-size:44px;color:var(--py);margin:6px 0;}
-.pycard .pyeg{font-family:'Noto Serif SC',serif;font-weight:900;font-size:52px;color:var(--ink);}
-.pycard .pyspk{width:52px;height:52px;font-size:22px;margin-top:8px;}
+.pygrid{position:absolute;top:330px;left:0;right:0;display:flex;flex-wrap:wrap;justify-content:center;gap:20px 30px;z-index:2;padding:0 60px;}
+.pycard{width:280px;background:var(--card);border-radius:28px;box-shadow:var(--shadow);border:5px solid #c3dafe;padding:16px 20px;text-align:center;}
+.pycard .pylead{font-family:'Nunito',sans-serif;font-weight:900;font-size:56px;color:var(--blue);margin-bottom:4px;}
+.pycard .pytones{font-family:'Nunito',sans-serif;font-weight:800;font-size:36px;color:var(--py);margin:4px 0;}
+.pycard .pyeg{font-family:'Noto Serif SC',serif;font-weight:900;font-size:48px;color:var(--ink);}
+.pycard .pyword{font-family:'Noto Serif SC',serif;font-size:26px;color:var(--ink);opacity:.68;margin-top:2px;}
+.pycard .pyspk{width:46px;height:46px;font-size:20px;margin-top:8px;}
 
 
 @media (prefers-reduced-motion:reduce){
@@ -208,7 +209,7 @@ body.editing .editable{outline:2px dashed var(--blue);outline-offset:4px;cursor:
     <div class="sub r" style="--i:2">复韵母</div>
     <div class="hint r" style="--i:3">按 → 或空格翻页</div>
   </section>
-<section class="slide" data-name="拼音"><div class="tag">复韵母</div><div class="title r" style="--i:1;font-size:80px">ie üe er</div><div class="pygrid"><div class="pycard r" style="--i:0"><div class="pylead">ie</div><div class="pytones">iē ié iě iè</div><div class="pyeg">ie</div><div class="pyeg">耶</div><button class="speaker pyspk" data-mp3='["ie1","ie2","ie3","ie4"]'>🔊</button></div><div class="pycard r" style="--i:1"><div class="pylead">üe</div><div class="pytones">üē üé üě üè</div><div class="pyeg">üe</div><div class="pyeg">约</div><button class="speaker pyspk" data-mp3='["ve1","ve2","ve3","ve4"]'>🔊</button></div><div class="pycard r" style="--i:2"><div class="pylead">er</div><div class="pytones">ēr ér ěr èr</div><div class="pyeg">er</div><div class="pyeg">耳</div><button class="speaker pyspk" data-mp3='["er1","er2","er3","er4"]'>🔊</button></div></div><div class="hint">点 🔊 听真人发音，跟着念</div></section>
+<section class="slide" data-name="拼音"><div class="tag">复韵母</div><div class="title r" style="--i:1;font-size:80px">ie üe er</div><div class="pygrid"><div class="pycard r" style="--i:0"><div class="pylead">ie</div><div class="pytones">iē ié iě iè</div><div class="pyeg">耶</div><div class="pyword">爷爷</div><button class="speaker pyspk" data-mp3='["ie1","ie2","ie3","ie4"]'>🔊</button></div><div class="pycard r" style="--i:1"><div class="pylead">üe</div><div class="pytones">üē üé üě üè</div><div class="pyeg">约</div><div class="pyword">约定</div><button class="speaker pyspk" data-mp3='["ve1","ve2","ve3","ve4"]'>🔊</button></div><div class="pycard r" style="--i:2"><div class="pylead">er</div><div class="pytones">ēr ér ěr èr</div><div class="pyeg">耳</div><div class="pyword">耳朵</div><button class="speaker pyspk" data-mp3='["er1","er2","er3","er4"]'>🔊</button></div></div><div class="hint">点 🔊 听真人发音，跟着念</div></section>
 <section class="slide" data-name="练一练">
     <div class="tag r" style="--i:0">练一练</div>
     <div class="title r" style="--i:1;font-size:80px">练一练</div>

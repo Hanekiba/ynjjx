@@ -169,12 +169,13 @@ body.editing .editable{outline:2px dashed var(--blue);outline-offset:4px;cursor:
 .cface{width:100%;height:100%;}
 .clock-label{font-family:'Nunito',sans-serif;font-weight:800;font-size:40px;text-align:center;color:var(--ink);margin-top:16px;}
 /* -- 拼音 -- */
-.pygrid{position:absolute;top:330px;left:0;right:0;display:grid;grid-template-columns:repeat(3,260px);gap:20px 30px;justify-content:center;z-index:2;padding:0 40px;}
-.pycard{background:var(--card);border-radius:28px;box-shadow:var(--shadow);border:5px solid #c3dafe;padding:18px 20px;text-align:center;}
-.pycard .pylead{font-family:'Nunito',sans-serif;font-weight:900;font-size:56px;color:var(--blue);margin-bottom:6px;}
-.pycard .pytones{font-family:'Nunito',sans-serif;font-weight:800;font-size:44px;color:var(--py);margin:6px 0;}
-.pycard .pyeg{font-family:'Noto Serif SC',serif;font-weight:900;font-size:52px;color:var(--ink);}
-.pycard .pyspk{width:52px;height:52px;font-size:22px;margin-top:8px;}
+.pygrid{position:absolute;top:330px;left:0;right:0;display:flex;flex-wrap:wrap;justify-content:center;gap:20px 30px;z-index:2;padding:0 60px;}
+.pycard{width:280px;background:var(--card);border-radius:28px;box-shadow:var(--shadow);border:5px solid #c3dafe;padding:16px 20px;text-align:center;}
+.pycard .pylead{font-family:'Nunito',sans-serif;font-weight:900;font-size:56px;color:var(--blue);margin-bottom:4px;}
+.pycard .pytones{font-family:'Nunito',sans-serif;font-weight:800;font-size:36px;color:var(--py);margin:4px 0;}
+.pycard .pyeg{font-family:'Noto Serif SC',serif;font-weight:900;font-size:48px;color:var(--ink);}
+.pycard .pyword{font-family:'Noto Serif SC',serif;font-size:26px;color:var(--ink);opacity:.68;margin-top:2px;}
+.pycard .pyspk{width:46px;height:46px;font-size:20px;margin-top:8px;}
 
 
 @media (prefers-reduced-motion:reduce){
@@ -208,7 +209,7 @@ body.editing .editable{outline:2px dashed var(--blue);outline-offset:4px;cursor:
     <div class="sub r" style="--i:2">前鼻韵母</div>
     <div class="hint r" style="--i:3">按 → 或空格翻页</div>
   </section>
-<section class="slide" data-name="拼音"><div class="tag">前鼻韵母</div><div class="title r" style="--i:1;font-size:80px">an en in un ün</div><div class="pygrid"><div class="pycard r" style="--i:0"><div class="pylead">an</div><div class="pytones">ān án ǎn àn</div><div class="pyeg">an</div><div class="pyeg">安</div><button class="speaker pyspk" data-mp3='["an1","an2","an3","an4"]'>🔊</button></div><div class="pycard r" style="--i:1"><div class="pylead">en</div><div class="pytones">ēn én ěn èn</div><div class="pyeg">en</div><div class="pyeg">恩</div><button class="speaker pyspk" data-mp3='["en1","en2","en3","en4"]'>🔊</button></div><div class="pycard r" style="--i:2"><div class="pylead">in</div><div class="pytones">īn ín ǐn ìn</div><div class="pyeg">in</div><div class="pyeg">因</div><button class="speaker pyspk" data-mp3='["in1","in2","in3","in4"]'>🔊</button></div><div class="pycard r" style="--i:3"><div class="pylead">un</div><div class="pytones">ūn ún ǔn ùn</div><div class="pyeg">un</div><div class="pyeg">温</div><button class="speaker pyspk" data-mp3='["un1","un2","un3","un4"]'>🔊</button></div><div class="pycard r" style="--i:4"><div class="pylead">ün</div><div class="pytones">ǖn ǘn ǚn ǜn</div><div class="pyeg">ün</div><div class="pyeg">晕</div><button class="speaker pyspk" data-mp3='["vn1","vn2","vn3","vn4"]'>🔊</button></div></div><div class="hint">点 🔊 听真人发音，跟着念</div></section>
+<section class="slide" data-name="拼音"><div class="tag">前鼻韵母</div><div class="title r" style="--i:1;font-size:80px">an en in un ün</div><div class="pygrid"><div class="pycard r" style="--i:0"><div class="pylead">an</div><div class="pytones">ān án ǎn àn</div><div class="pyeg">安</div><div class="pyword">安静</div><button class="speaker pyspk" data-mp3='["an1","an2","an3","an4"]'>🔊</button></div><div class="pycard r" style="--i:1"><div class="pylead">en</div><div class="pytones">ēn én ěn èn</div><div class="pyeg">恩</div><div class="pyword">恩人</div><button class="speaker pyspk" data-mp3='["en1","en2","en3","en4"]'>🔊</button></div><div class="pycard r" style="--i:2"><div class="pylead">in</div><div class="pytones">īn ín ǐn ìn</div><div class="pyeg">因</div><div class="pyword">因为</div><button class="speaker pyspk" data-mp3='["in1","in2","in3","in4"]'>🔊</button></div><div class="pycard r" style="--i:3"><div class="pylead">un</div><div class="pytones">ūn ún ǔn ùn</div><div class="pyeg">温</div><div class="pyword">温暖</div><button class="speaker pyspk" data-mp3='["un1","un2","un3","un4"]'>🔊</button></div><div class="pycard r" style="--i:4"><div class="pylead">ün</div><div class="pytones">ǖn ǘn ǚn ǜn</div><div class="pyeg">晕</div><div class="pyword">云朵</div><button class="speaker pyspk" data-mp3='["vn1","vn2","vn3","vn4"]'>🔊</button></div></div><div class="hint">点 🔊 听真人发音，跟着念</div></section>
 <section class="slide" data-name="练一练">
     <div class="tag r" style="--i:0">练一练</div>
     <div class="title r" style="--i:1;font-size:80px">练一练</div>
