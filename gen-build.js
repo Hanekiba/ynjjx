@@ -1,14 +1,22 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta id="vp" name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>小小的船 · 一年级上册</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
-<style>
+/* 一年级上册教学动画 批量生成器
+ * 用法: node gen-build.js
+ * 读取 gen-manifest.js 中的课程清单，按已验收的引擎模板产出单文件 HTML。
+ */
+const fs = require('fs');
+const path = require('path');
 
+const OUT = __dirname; // 输出到工作区根目录
+const manifest = require('./gen-manifest.js');
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/* ---------- 引擎基础 CSS（来自已验收的天地人/比大小） ---------- */
+const ENGINE_CSS = `
 :root{--cream:#FFF6E6;--card:#FFFFFF;--ink:#3A3A4A;--soft:#FFF3DF;--orange:#FF9F45;--green:#6FCF7E;--blue:#5AA9E6;--py:#E8743B;--shadow:0 18px 40px rgba(255,159,69,.20);}
 *{margin:0;box-sizing:border-box;}html,body{height:100%;}
 body{font-family:'Noto Serif SC',serif;color:var(--ink);overflow:hidden;background:#FFE4BE;}
@@ -41,8 +49,10 @@ body.editing .editable{outline:2px dashed var(--blue);outline-offset:4px;cursor:
 .voicebar{position:absolute;top:58px;right:60px;z-index:4;display:flex;align-items:center;gap:10px;background:var(--soft);padding:8px 16px;border-radius:22px;font-family:'Nunito',sans-serif;font-weight:800;font-size:22px;color:#B07A36;box-shadow:0 8px 18px rgba(255,159,69,.18);}
 .voicebar select{font-family:'Nunito',sans-serif;font-weight:700;font-size:18px;border:none;background:#fff;border-radius:12px;padding:6px 10px;color:var(--ink);cursor:pointer;max-width:240px;}
 .voicebar input[type=range]{width:110px;cursor:pointer;}
+`;
 
-
+/* ---------- 各类动画 CSS ---------- */
+const KIND_CSS = `
 /* 汉字 BC 混搭：活字做动作 + 一闪变身后代表物 + ✨ */
 .cards{position:absolute;top:310px;left:0;right:0;bottom:120px;display:grid;grid-template-columns:repeat(4,200px);grid-auto-rows:200px;gap:18px 22px;justify-content:center;align-content:center;z-index:2;padding:0 60px;}
 .card{width:200px;height:200px;background:var(--card);border-radius:26px;box-shadow:var(--shadow);border:5px solid #FFE2BC;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;gap:2px;padding:6px;}
@@ -175,8 +185,9 @@ body.editing .editable{outline:2px dashed var(--blue);outline-offset:4px;cursor:
 .pycard .pytones{font-family:'Nunito',sans-serif;font-weight:800;font-size:44px;color:var(--py);margin:6px 0;}
 .pycard .pyeg{font-family:'Noto Serif SC',serif;font-weight:900;font-size:52px;color:var(--ink);}
 .pycard .pyspk{width:52px;height:52px;font-size:22px;margin-top:8px;}
+`;
 
-
+const REDUCED = `
 @media (prefers-reduced-motion:reduce){
 .slide{transition:none;}
 .slide.active .r{animation:none;opacity:1;transform:none;}
@@ -195,112 +206,258 @@ body.editing .editable{outline:2px dashed var(--blue);outline-offset:4px;cursor:
 .oans{opacity:1;}
 .tenplus .tp-answer{opacity:1;transform:none;}
 }
+`;
 
-</style>
-</head>
-<body>
-<div class="viewport">
-  <div class="stage" id="stage">
-    <div class="bg"><div class="float" style="left:10%;top:16%;font-size:70px;animation-duration:9s">🌙</div><div class="float" style="right:12%;top:20%;font-size:76px;animation-duration:10.5s">⭐</div><div class="float" style="left:16%;bottom:14%;font-size:82px;animation-duration:12s">🚤</div><div class="float" style="right:16%;bottom:18%;font-size:88px;animation-duration:13.5s">💧</div></div>
-<section class="slide" data-name="封面">
-    <div class="tag r" style="--i:0">课文</div>
-    <div class="title r" style="--i:1">小小的船</div>
-    <div class="sub r" style="--i:2">弯弯的月儿</div>
+/* ---------- 各 slide 构造 ---------- */
+function coverSlide(s, L) {
+  return `<section class="slide" data-name="封面">
+    <div class="tag r" style="--i:0">${esc(L.tag)}</div>
+    <div class="title r" style="--i:1">${esc(L.title)}</div>
+    <div class="sub r" style="--i:2">${esc(L.sub || '')}</div>
     <div class="hint r" style="--i:3">按 → 或空格翻页</div>
-  </section>
-<section class="slide" data-name="读一读"><div class="tag r" style="--i:0">读一读</div><div class="title r" style="--i:1;font-size:80px">小小的船</div><div class="poem" style="top:400px;gap:22px"><div class="pline r" style="--i:0;font-size:62px">弯弯的月儿小小的船，</div><div class="pline r" style="--i:1;font-size:62px">小小的船儿两头尖。</div><div class="pline r" style="--i:2;font-size:62px">我在小小的船里坐，</div><div class="pline r" style="--i:3;font-size:62px">只看见闪闪的星星蓝蓝的天。</div></div><div style="position:absolute;top:810.4000000000001px;left:0;right:0;display:flex;justify-content:center;z-index:2"><button class="speak-count" data-seq='["弯弯的月儿小小的船，","小小的船儿两头尖。","我在小小的船里坐，","只看见闪闪的星星蓝蓝的天。"]'>🔊 读一读</button></div><div class="hint">一句一句跟着念，点 🔊 听</div></section>
-<section class="slide" data-name="认一认">
-    <div class="tag r" style="--i:0">认一认</div>
-    <div class="title r" style="--i:1;font-size:84px">会认字</div>
-    <div class="cards">
-    <div class="card">
-      <div class="glyphbox">
-        <div class="glyphwrap"><div class="glyph live-bob">船</div></div>
-        <div class="obj">⛵</div>
-      </div>
-      <div class="spark">✨</div>
-      <button class="speaker cspeak" data-han="船">🔊</button>
-    </div>
-    <div class="card">
-      <div class="glyphbox">
-        <div class="glyphwrap"><div class="glyph live-spin">弯</div></div>
-        <div class="obj">🌙</div>
-      </div>
-      <div class="spark">✨</div>
-      <button class="speaker cspeak" data-han="弯">🔊</button>
-    </div>
-    <div class="card">
-      <div class="glyphbox">
-        <div class="glyphwrap"><div class="glyph live-pulse">两</div></div>
-        <div class="obj">✌️</div>
-      </div>
-      <div class="spark">✨</div>
-      <button class="speaker cspeak" data-han="两">🔊</button>
-    </div>
-    <div class="card">
-      <div class="glyphbox">
-        <div class="glyphwrap"><div class="glyph live-hop">头</div></div>
-        <div class="obj">🔝</div>
-      </div>
-      <div class="spark">✨</div>
-      <button class="speaker cspeak" data-han="头">🔊</button>
-    </div>
-    <div class="card">
-      <div class="glyphbox">
-        <div class="glyphwrap"><div class="glyph live-bob">尖</div></div>
-        <div class="obj">🔺</div>
-      </div>
-      <div class="spark">✨</div>
-      <button class="speaker cspeak" data-han="尖">🔊</button>
-    </div>
-    <div class="card">
-      <div class="glyphbox">
-        <div class="glyphwrap"><div class="glyph live-float">星</div></div>
-        <div class="obj">⭐</div>
-      </div>
-      <div class="spark">✨</div>
-      <button class="speaker cspeak" data-han="星">🔊</button>
-    </div>
-    <div class="card">
-      <div class="glyphbox">
-        <div class="glyphwrap"><div class="glyph live-pulse">闪</div></div>
-        <div class="obj">✨</div>
-      </div>
-      <div class="spark">✨</div>
-      <button class="speaker cspeak" data-han="闪">🔊</button>
-    </div>
-    <div class="card">
-      <div class="glyphbox">
-        <div class="glyphwrap"><div class="glyph live-hop">蓝</div></div>
-        <div class="obj">💙</div>
-      </div>
-      <div class="spark">✨</div>
-      <button class="speaker cspeak" data-han="蓝">🔊</button>
-    </div></div>
-    <div class="hint">字会变身成对应的东西，点 🔊 听读音</div>
-  </section>
-<section class="slide" data-name="练一练">
-    <div class="tag r" style="--i:0">练一练</div>
-    <div class="title r" style="--i:1;font-size:80px">练一练</div>
-    <div class="qrow">
-    <div class="qmath r" style="--i:0" data-ans="月儿">弯弯的( )<span class="sign"></span><span class="fx">🌙</span></div>
-    <div class="qmath r" style="--i:1" data-ans="星星">闪闪的( )<span class="sign"></span><span class="fx">⭐</span></div></div>
-    <div class="hint">点一下每道题，看答案还撒星星</div>
-  </section>
-<section class="slide" data-name="小结">
-    <div class="tag r" style="--i:0">小结</div>
-    <div class="title r" style="--i:1;font-size:96px">记住啦</div>
-    <div class="sub r" style="--i:2">把月儿比作小船，弯弯的两头尖尖。</div>
-    <div class="hint r" style="--i:3">按 ← 复习，或回目录选下一课</div>
-  </section>
-    <div class="dots" id="dots"></div>
-    <div class="counter" id="counter"></div>
-    <div class="voicebar"><span>🔊 声音</span><select id="voiceSel"></select><span>语速</span><input type="range" id="rateRange" min="0.4" max="1.2" step="0.05" value="0.6"></div>
-    <div class="nav"><button class="homebtn" id="home" title="返回目录">🏠 目录</button><button class="navbtn" id="prev">‹</button><button class="navbtn" id="next">›</button></div>
-  </div>
-</div>
-<script>
+  </section>`;
+}
 
+function recognizeSlide(s) {
+  const cards = s.cards.map((c, i) => `
+    <div class="card">
+      <div class="glyphbox">
+        <div class="glyphwrap"><div class="glyph ${c.m || 'live-bob'}">${esc(c.c)}</div></div>
+        <div class="obj">${esc(c.o || '')}</div>
+      </div>
+      <div class="spark">✨</div>
+      <button class="speaker cspeak" data-han="${esc(c.han || c.c)}">🔊</button>
+    </div>`).join('');
+  return `<section class="slide" data-name="${esc(s.label || '认一认')}">
+    <div class="tag r" style="--i:0">${esc(s.label || '认一认')}</div>
+    <div class="title r" style="--i:1;font-size:84px">${esc(s.head || '认一认')}</div>
+    <div class="cards">${cards}</div>
+    <div class="hint">字会变身成对应的东西，点 🔊 听读音</div>
+  </section>`;
+}
+
+function wordsSlide(s) {
+  const items = s.items.map((it, i) => `
+    <div class="wcard r" style="--i:${i}">
+      <div class="wc">${esc(it.c)}</div>
+      <div class="wl">${esc((it.w || []).join(' · '))}</div>
+    </div>`).join('');
+  return `<section class="slide" data-name="${esc(s.label || '组词')}">
+    <div class="tag r" style="--i:0">${esc(s.label || '组词')}</div>
+    <div class="title r" style="--i:1;font-size:84px">${esc(s.head || '给字找朋友')}</div>
+    <div class="words">${items}</div>
+    <div class="hint">一个字能组好几个词</div>
+  </section>`;
+}
+
+function poemSlide(s) {
+  const n=(s.lines||[]).length;
+  const fs=n<=4?62:n<=6?50:n<=8?40:n<=10?34:28;
+  const gap=n<=4?22:n<=6?16:n<=8?10:8;
+  const top=n<=4?400:n<=6?340:n<=8?290:250;
+  const lines=s.lines.map(function(t,i){return'<div class="pline r" style="--i:'+i+';font-size:'+fs+'px">'+esc(t)+'</div>';}).join('');
+  const seqAttr=s.lines&&s.lines.length?' data-seq=\''+JSON.stringify(s.lines).replace(/'/g,'&#39;')+'\'':'';
+  const spkTop=Math.min(top+n*(fs*1.3+gap),860);
+  return'<section class="slide" data-name="'+esc(s.label||'\u8bfb\u4e00\u8bfb')+'"><div class="tag r" style="--i:0">'+esc(s.label||'\u8bfb\u4e00\u8bfb')+'</div><div class="title r" style="--i:1;font-size:80px">'+esc(s.head||'\u8bfb\u4e00\u8bfb')+'</div><div class="poem" style="top:'+top+'px;gap:'+gap+'px">'+lines+'</div>'+(seqAttr?'<div style="position:absolute;top:'+spkTop+'px;left:0;right:0;display:flex;justify-content:center;z-index:2"><button class="speak-count"'+seqAttr+'>\u{1F50A} \u8bfb\u4e00\u8bfb</button></div>':'')+'<div class="hint">\u4e00\u53e5\u4e00\u53e5\u8ddf\u7740\u5ff5\uff0c\u70b9 \u{1F50A} \u542c</div></section>';
+}
+
+function practiceSlide(s) {
+  const items = s.items.map((it, i) => `
+    <div class="qmath r" style="--i:${i}" data-ans="${esc(it.a)}">${esc(it.q)}<span class="sign"></span>${it.fx ? '<span class="fx">' + esc(it.fx) + '</span>' : ''}</div>`).join('');
+  return `<section class="slide" data-name="${esc(s.label || '练一练')}">
+    <div class="tag r" style="--i:0">${esc(s.label || '练一练')}</div>
+    <div class="title r" style="--i:1;font-size:80px">${esc(s.head || '点一点揭晓')}</div>
+    <div class="qrow">${items}</div>
+    <div class="hint">点一下每道题，看答案还撒星星</div>
+  </section>`;
+}
+
+function summarySlide(s) {
+  return `<section class="slide" data-name="小结">
+    <div class="tag r" style="--i:0">小结</div>
+    <div class="title r" style="--i:1;font-size:96px">${esc(s.head || '记住啦')}</div>
+    <div class="sub r" style="--i:2">${esc(s.text || '')}</div>
+    <div class="hint r" style="--i:3">按 ← 复习，或回目录选下一课</div>
+  </section>`;
+}
+
+function applesRow(arr, extraFrom) {
+  // arr: emoji 数组；extraFrom: 从第几个开始标记为 extra（从0计），null 表示无
+  return arr.map((e, i) => {
+    const ex = (extraFrom != null && i >= extraFrom) ? ' extra' : '';
+    return `<span class="apple${ex}" style="left:${80 + i * 120}px">${esc(e)}</span>`;
+  }).join('');
+}
+
+function compareSlide(s) {
+  const top = s.top, bot = s.bot;
+  const pairs = Math.min(top.length, bot.length);
+  const lines = [];
+  for (let i = 0; i < pairs; i++) {
+    const x = 120 + i * 120;
+    lines.push(`<line x1="${x}" y1="40" x2="${x}" y2="260"/>`);
+  }
+  const plusHtml = s.plus ? `<div class="plus" style="left:${80 + (s.extraFrom != null ? s.extraFrom : pairs) * 120 - 30}px;top:${s.extraSide === 'bot' ? 222 : -6}px" data-speak="${esc(s.plusSpeak || '')}">${esc(s.plus)}</div>` : '';
+  const symHtml = `<div class="psym">${esc(s.sym)}</div>`;
+  const stepHtml = `<div class="pstep">${esc(s.step || '')}</div>`;
+  return `<section class="slide" data-name="${esc(s.label || '比一比')}">
+    <div class="tag r" style="--i:0">${esc(s.tag || '比一比')}</div>
+    <div class="lead r" style="--i:1">${esc(s.lead || '先数一数，再一一配对，看谁多出来')}</div>
+    <div class="match">
+      <div class="row top">${applesRow(top, s.extraSide === 'top' ? s.extraFrom : null)}</div>
+      <div class="row bot">${applesRow(bot, s.extraSide === 'bot' ? s.extraFrom : null)}</div>
+      <svg class="lines" viewBox="0 0 760 300">${lines.join('')}</svg>
+      ${plusHtml}
+      ${symHtml}
+      ${stepHtml}
+    </div>
+    <button class="speaker" style="position:absolute;top:792px;left:50%;margin-left:-40px" data-han="${esc(s.speak || '')}">🔊</button>
+    <div class="hint">${esc(s.hint || '看：多出来的，就是理由')}</div>
+  </section>`;
+}
+
+function countSlide(s) {
+  const baskets = s.baskets.map((b, bi) => {
+    const apples = [];
+    for (let i = 0; i < b.n; i++) {
+      apples.push(`<span class="apple" style="--i:${i}">${esc(b.e)}<i>${i + 1}</i></span>`);
+    }
+    return `<div class="basket r" style="--i:${bi}">
+      <div class="cap">${esc(b.cap || '')}</div>
+      <div class="objrow">${apples.join('')}</div>
+      <div class="total" data-target="${b.n}">共 0 个</div>
+    </div>`;
+  }).join('');
+  const seqAttr = s.seq ? ` data-seq='${JSON.stringify(s.seq).replace(/'/g, '&#39;')}'` : '';
+  return `<section class="slide" data-name="${esc(s.label || '数一数')}">
+    <div class="tag r" style="--i:0">${esc(s.label || '数一数')}</div>
+    <div class="title r" style="--i:1;font-size:84px">${esc(s.head || '一颗一颗数清楚')}</div>
+    <div class="compare">${baskets}</div>
+    ${s.seq ? `<div style="position:absolute;top:760px;left:0;right:0;display:flex;justify-content:center;z-index:2"><button class="speak-count"${seqAttr}>🔊 数一数</button></div>` : ''}
+    <div class="hint">苹果一颗颗蹦出来，数到几就是几个</div>
+  </section>`;
+}
+
+function numsSlide(s) {
+  const cols = s.cols.map((c, i) => {
+    let objs = '';
+    for (let k = 0; k < c.n; k++) objs += `<span class="apple" style="--i:${k}">${esc(c.e)}</span>`;
+    return `<div class="numcol r" style="--i:${i}">
+      <div class="nd">${c.n}</div>
+      <div class="nrow">${objs}</div>
+    </div>`;
+  }).join('');
+  const seqAttr = s.seq ? ` data-seq='${JSON.stringify(s.seq).replace(/'/g, '&#39;')}'` : '';
+  return `<section class="slide" data-name="${esc(s.label || '认数字')}">
+    <div class="tag r" style="--i:0">${esc(s.label || '认数字')}</div>
+    <div class="title r" style="--i:1;font-size:84px">${esc(s.head || '1 到 5')}</div>
+    <div class="nums">${cols}</div>
+    ${s.seq ? `<div style="position:absolute;top:760px;left:0;right:0;display:flex;justify-content:center;z-index:2"><button class="speak-count"${seqAttr}>🔊 念一念</button></div>` : ''}
+    <div class="hint">数字几，就对应几个小图案</div>
+  </section>`;
+}
+
+function groupEmojis(e, n, start) {
+  let h = '';
+  for (let i = 0; i < n; i++) h += `<span class="apple" style="--i:${start + i}">${esc(e)}</span>`;
+  return h;
+}
+
+function ordinalSlide(s) {
+  const items = s.objects.map((e, i) =>
+    `<div class="oitem" style="--i:${i}"><div class="oemoji">${esc(e)}</div><div class="olabel">第${i + 1}</div></div>`
+  ).join('');
+  return `<section class="slide" data-name="${esc(s.label || '第几')}">
+    <div class="tag r" style="--i:0">${esc(s.tag || '第几')}</div>
+    <div class="title r" style="--i:1;font-size:84px">${esc(s.head || '第几')}</div>
+    <div class="lead r" style="--i:2">${esc(s.lead || '排队时，第几表示位置')}</div>
+    <div class="ord">${items}</div>
+    <div class="oq">${esc(s.q || '')}</div>
+    <div style="position:absolute;top:724px;left:0;right:0;display:flex;justify-content:center;z-index:2">
+      <button class="ord-go" data-hi="${s.hi != null ? s.hi : ''}" data-han="${esc(s.ans || '')}">👀 看答案</button>
+    </div>
+    <div class="oans">${esc(s.ans || '')}</div>
+    <div class="hint">点「看答案」，谁排第几就亮起来</div>
+  </section>`;
+}
+
+function splitSlide(s) {
+  const combos = (s.parts || []).map(function (p) {
+    return `<div class="scombo"><div class="stop">${s.n}</div><div class="smid"></div><div class="sbot"><span class="spart">${p[0]}</span><span class="spart">${p[1]}</span></div></div>`;
+  }).join('');
+  const seqAttr = s.seq ? ` data-seq='${JSON.stringify(s.seq).replace(/'/g, '&#39;')}'` : '';
+  return `<section class="slide" data-name="${esc(s.label || '分与合')}">
+    <div class="tag r" style="--i:0">${esc(s.tag || '分与合')}</div>
+    <div class="title r" style="--i:1;font-size:84px">${esc(s.head || (s.n + ' 的分与合'))}</div>
+    <div class="split">${combos}</div>
+    ${s.seq ? `<div style="position:absolute;top:780px;left:0;right:0;display:flex;justify-content:center;z-index:2"><button class="speak-count"${seqAttr}>🔊 读一读</button></div>` : ''}
+    <div class="hint">${esc(s.hint || '一个数分成两个数，合起来还是它')}</div>
+  </section>`;
+}
+
+function addSlide(s) {
+  const g1 = groupEmojis(s.e, s.a, 0);
+  const g2 = groupEmojis(s.e, s.b, s.a);
+  const g3 = groupEmojis(s.e, s.sum, 0);
+  return `<section class="slide" data-name="${esc(s.label || '加法')}">
+    <div class="tag r" style="--i:0">${esc(s.tag || '加法')}</div>
+    <div class="title r" style="--i:1;font-size:84px">${esc(s.head || '加法')}</div>
+    <div class="lead r" style="--i:2">${esc(s.lead || '把两部分合起来，用加法')}</div>
+    <div class="opwrap"><div class="ogroup">${g1}</div><div class="op">+</div><div class="ogroup">${g2}</div><div class="op">=</div><div class="ogroup">${g3}</div></div>
+    <div style="position:absolute;top:706px;left:0;right:0;display:flex;justify-content:center;z-index:2">
+      <div class="qmath" data-ans="= ${s.sum}">${s.a} + ${s.b}<span class="sign"></span></div>
+    </div>
+    <div class="hint">${esc(s.hint || '点一点，看算式')}</div>
+  </section>`;
+}
+
+function subSlide(s) {
+  let apples = '';
+  for (let i = 0; i < s.total; i++) {
+    const cls = i < s.take ? 'gone' : 'keep';
+    apples += `<span class="apple ${cls}" style="--i:${i}">${esc(s.e)}</span>`;
+  }
+  let goneGrp = '';
+  for (let i = 0; i < s.take; i++) goneGrp += `<span class="apple gone" style="--i:${i}">${esc(s.e)}</span>`;
+  return `<section class="slide" data-name="${esc(s.label || '减法')}">
+    <div class="tag r" style="--i:0">${esc(s.tag || '减法')}</div>
+    <div class="title r" style="--i:1;font-size:84px">${esc(s.head || '减法')}</div>
+    <div class="lead r" style="--i:2">${esc(s.lead || '从总数里去掉一部分，用减法')}</div>
+    <div class="opwrap"><div class="ogroup">${apples}</div><div class="op">−</div><div class="ogroup">${goneGrp}</div><div class="op">=</div><div class="ogroup">${groupEmojis(s.e, s.left, 0)}</div></div>
+    <div style="position:absolute;top:706px;left:0;right:0;display:flex;justify-content:center;z-index:2">
+      <div class="qmath" data-ans="= ${s.left}">${s.total} − ${s.take}<span class="sign"></span></div>
+    </div>
+    <div class="hint">${esc(s.hint || '点一点，看算式')}</div>
+  </section>`;
+}
+
+function tenplusSlide(s){var a=s.big||9,b=s.small||4,c=10-a,d=b-c,em=s.e||'🍎',be='',ne='',re='';for(var i=0;i<a;i++)be+='<span>'+em+'</span>';for(var i=0;i<c;i++)ne+='<span>'+em+'</span>';for(var i=0;i<d;i++)re+='<span>'+em+'</span>';var spk=s.speak?'<button class="speaker" style="position:absolute;bottom:80px;left:50%;margin-left:-35px;z-index:3" data-han="'+a+'+'+b+'\u7b49\u4e8e'+(a+b)+'">\u{1F50A}</button>':'';return'<section class="slide tenplus" data-name="\u51d1\u5341\u6cd5"><div class="tag">'+esc(s.label||'\u51d1\u5341\u6cd5')+'</div><div class="title r" style="--i:1;font-size:68px">'+a+' + '+b+' = \uFF1F</div><div class="lead r" style="--i:2">'+esc(s.lead||'\u5148\u51d1\u6210 10\uFF0C\u518d\u7b97')+'</div><div class="tp-wrap r" style="--i:3"><div class="tp-big">'+be+'<div class="ch-total">'+a+'</div></div><div class="tp-op">+</div><div class="tp-small"><div class="tp-need">'+ne+'</div><div class="tp-rest">'+re+'</div><div class="ch-total"><span>'+c+'</span> + '+d+'</div></div></div><div class="tp-step r" style="--i:4">'+a+' + '+c+' = 10 \u2192 10 + '+d+' = <b style="color:var(--green)">'+(a+b)+'</b></div><div class="tp-answer" style="transition-delay:.6s">= '+(a+b)+'</div>'+spk+'</section>';}
+function chainSlide(s){var em=s.e||'🍎',steps=s.steps||[4,2,1],ops=s.ops||['+','+'],g='<div class="ch-group">',r=steps[0];for(var i=0;i<steps[0];i++)g+='<span>'+em+'</span>';g+='</div>';for(var i=1;i<steps.length;i++){r=ops[i-1]==='+'?r+steps[i]:r-steps[i];g+='<div class="ch-op">'+ops[i-1]+'</div><div class="ch-group">';for(var j=0;j<steps[i];j++)g+='<span>'+em+'</span>';g+='</div><div class="ch-op">=</div><div class="ch-total">'+r+'</div>';}var spk=s.speak?'<button class="speaker" style="position:absolute;bottom:80px;left:50%;margin-left:-35px;z-index:3" data-han="'+(s.speakTxt||'')+'">\u{1F50A}</button>':'';return'<section class="slide chain" data-name="\u8fde\u52a0\u8fde\u51cf"><div class="tag">'+esc(s.label||'\u8fde\u52a0\u8fde\u51cf')+'</div><div class="title r" style="--i:1">'+esc(s.head||'\u8fde\u52a0\u8fde\u51cf')+'</div><div class="ch-row r" style="--i:2">'+g+'</div><div class="ch-total r" style="--i:3;text-align:center;margin-top:16px">\u6700\u540e\u8fd8\u5269 <span>'+r+'</span></div>'+spk+'</section>';}
+function clockSlide(s){var h=s.hour||8,m=s.min||0,hd=(h%12)*30+m*0.5,md=m*6,ts=s.timeLabel||(h+':'+String(m).padStart(2,'0')),ns='';var nums=[12,1,2,3,4,5,6,7,8,9,10,11];for(var i=0;i<nums.length;i++){var n=nums[i],a=(n-3)*Math.PI/6,x=(200+160*Math.cos(a)).toFixed(1),y=(200+160*Math.sin(a)).toFixed(1);ns+='<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-family="Nunito,sans-serif" font-weight="800" font-size="36" fill="var(--ink)">'+n+'</text>';}var spk=s.speak?'<button class="speaker" style="position:absolute;bottom:66px;left:50%;margin-left:-35px;z-index:3" data-han="'+(s.speakTxt||'')+'">\u{1F50A}</button>':'';return'<section class="slide" data-name="\u949f\u8868"><div class="tag">'+esc(s.label||'\u8ba4\u8bc6\u949f\u8868')+'</div><div class="title r" style="--i:1">'+esc(s.head||'\u8ba4\u4e00\u8ba4')+'</div><div class="lead r" style="--i:2">'+esc(s.lead||'\u770b\u4e00\u770b\uff0c\u8fd9\u662f\u51e0\u70b9\uff1f')+'</div><div class="clock-face r" style="--i:3"><svg class="cface" viewBox="0 0 400 400"><circle cx="200" cy="200" r="190" fill="none" stroke="var(--ink)" stroke-width="8"/>'+ns+'<circle cx="200" cy="200" r="12" fill="var(--ink)"/><line x1="200" y1="200" x2="'+(200+100*Math.cos((hd-90)*Math.PI/180)).toFixed(1)+'" y2="'+(200+100*Math.sin((hd-90)*Math.PI/180)).toFixed(1)+'" stroke="var(--ink)" stroke-width="10" stroke-linecap="round"/><line x1="200" y1="200" x2="'+(200+140*Math.cos((md-90)*Math.PI/180)).toFixed(1)+'" y2="'+(200+140*Math.sin((md-90)*Math.PI/180)).toFixed(1)+'" stroke="var(--py)" stroke-width="6" stroke-linecap="round"/></svg></div><div class="clock-label r" style="--i:4">'+ts+'</div>'+spk+'</section>';}
+function pinyinSlide(s){var cards='';s.items.forEach(function(it,i){var tones=it.tones?it.tones.join(' '):'';var spk=it.han?'<button class="speaker pyspk" data-han="'+it.han+'">\u{1F50A}</button>':'<button class="speaker pyspk" data-han="'+it.py+'">\u{1F50A}</button>';cards+='<div class="pycard r" style="--i:'+i+'"><div class="pylead">'+esc(it.py)+'</div>'+(tones?'<div class="pytones">'+esc(tones)+'</div>':'')+(it.spell?'<div class="pyeg">'+esc(it.spell)+'</div>':'')+(it.eg?'<div class="pyeg">'+esc(it.eg)+'</div>':'')+spk+'</div>';});return'<section class="slide" data-name="\u62fc\u97f3"><div class="tag">'+esc(s.label||'\u62fc\u97f3')+'</div><div class="title r" style="--i:1;font-size:80px">'+esc(s.head||'\u62fc\u97f3')+'</div><div class="pygrid">'+cards+'</div><div class="hint">\u70b9 \u{1F50A} \u542c\u53d1\u97f3\uFF0C\u8ddf\u7740\u5ff5</div></section>';}
+
+const BUILDERS = {
+  cover: (s, L) => coverSlide(s, L),
+  recognize: recognizeSlide,
+  words: wordsSlide,
+  poem: poemSlide,
+  practice: practiceSlide,
+  summary: summarySlide,
+  compare: compareSlide,
+  count: countSlide,
+  nums: numsSlide,
+  ordinal: ordinalSlide,
+  split: splitSlide,
+  add: addSlide,
+  sub: subSlide,
+  tenplus: tenplusSlide,
+  chain: chainSlide,
+  clock: clockSlide,
+  pinyin: pinyinSlide,
+};
+
+/* ---------- 引擎 JS ---------- */
+const ENGINE_JS = `
 (function(){
   var UA=navigator.userAgent,SW=screen.width;
   var isMobile=/Mobi|Android/i.test(UA)||(SW<1024&&'ontouchstart' in window);
@@ -348,7 +505,80 @@ document.querySelectorAll('[data-seq]').forEach(function(b){b.addEventListener('
 document.querySelectorAll('.speaker').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();speak(b.dataset.han);});});
 addEventListener('keydown',function(e){if(e.key==='e'||e.key==='E'){document.body.classList.toggle('editing');}});
 document.body.addEventListener('click',function(){if(document.body.classList.contains('editing')){document.querySelectorAll('[contenteditable]').forEach(function(el){el.contentEditable='true';});}});
+`;
 
+/* ---------- 组装单课 HTML ---------- */
+function buildLesson(L) {
+  const bgEmojis = L.bg && L.bg.length ? L.bg : ['🌟', '🍃', '☀️', '💧'];
+  const floats = bgEmojis.map((e, i) => {
+    const pos = [['10%', '16%'], ['right:12%', '20%'], ['16%', 'bottom:14%'], ['right:16%', 'bottom:18%']][i % 4];
+    const style = (pos[0].startsWith('right') ? pos[0] : 'left:' + pos[0]) + ';' + (pos[1].startsWith('bottom') ? pos[1] : 'top:' + pos[1]);
+    const dur = 9 + i * 1.5;
+    return `<div class="float" style="${style};font-size:${70 + i * 6}px;animation-duration:${dur}s">${e}</div>`;
+  }).join('');
+
+  const slidesHtml = L.slides.map((s) => {
+    const fn = BUILDERS[s.kind];
+    if (!fn) return '';
+    return fn(s, L);
+  }).join('\n');
+
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta id="vp" name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>${esc(L.title)} · 一年级上册</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+${ENGINE_CSS}
+${KIND_CSS}
+${REDUCED}
+</style>
+</head>
+<body>
+<div class="viewport">
+  <div class="stage" id="stage">
+    <div class="bg">${floats}</div>
+${slidesHtml}
+    <div class="dots" id="dots"></div>
+    <div class="counter" id="counter"></div>
+    <div class="voicebar"><span>🔊 声音</span><select id="voiceSel"></select><span>语速</span><input type="range" id="rateRange" min="0.4" max="1.2" step="0.05" value="0.6"></div>
+    <div class="nav"><button class="homebtn" id="home" title="返回目录">🏠 目录</button><button class="navbtn" id="prev">‹</button><button class="navbtn" id="next">›</button></div>
+  </div>
+</div>
+<script>
+${ENGINE_JS}
 </script>
 </body>
-</html>
+</html>`;
+}
+
+/* ---------- 执行 ---------- */
+function safeWrite(file, html) {
+  // 预览面板可能临时占用文件导致 EPERM，重试几次
+  for (let attempt = 1; attempt <= 8; attempt++) {
+    try {
+      fs.writeFileSync(file, html, 'utf8');
+      return true;
+    } catch (e) {
+      if (e.code === 'EPERM' && attempt < 8) {
+        require('child_process').execSync('sleep 1');
+        continue;
+      }
+      throw e;
+    }
+  }
+  return false;
+}
+let count = 0;
+manifest.forEach((L) => {
+  const html = buildLesson(L);
+  const file = path.join(OUT, L.file);
+  safeWrite(file, html);
+  count++;
+  console.log('生成:', L.file, '(' + L.slides.length + ' 屏)');
+});
+console.log('完成，共生成', count, '个文件。');
