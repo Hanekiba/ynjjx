@@ -146,6 +146,28 @@ body.editing .editable{outline:2px dashed var(--blue);outline-offset:4px;cursor:
 .op{font-family:'Nunito',sans-serif;font-weight:900;font-size:78px;color:var(--py);}
 .ogroup .apple.gone{opacity:.28;filter:grayscale(1);transform:translateY(-8px);}
 .ogroup .apple.keep{box-shadow:0 0 0 7px var(--green),0 0 26px rgba(111,207,126,.6);border-radius:50%;}
+/* -- 凑十法 tenplus -- */
+.tenplus .tp-wrap{display:flex;align-items:center;justify-content:center;gap:40px;margin-top:40px;}
+.tenplus .tp-big,.tenplus .tp-small{text-align:center;}
+.tenplus .tp-big span,.tenplus .tp-small span{font-size:60px;display:inline-block;}
+.tenplus .tp-op{font-family:'Nunito',sans-serif;font-weight:900;font-size:64px;color:var(--py);}
+.tenplus .tp-small .tp-need{display:inline-flex;gap:4px;background:rgba(111,207,126,.25);border-radius:16px;padding:4px 14px;}
+.tenplus .tp-small .tp-rest{display:inline-flex;gap:4px;opacity:.45;}
+.tenplus .tp-arrow{font-size:36px;color:var(--py);}
+.tenplus .tp-step{font-family:'Nunito',sans-serif;font-weight:800;font-size:36px;margin-top:14px;text-align:center;color:var(--ink);}
+.tenplus .tp-answer{font-family:'Nunito',sans-serif;font-weight:900;font-size:72px;text-align:center;color:var(--green);margin-top:16px;opacity:0;transform:translateY(12px);transition:opacity .4s,transform .4s;}
+.slide.active .tenplus .tp-answer{opacity:1;transform:none;}
+/* -- 连加连减 chain -- */
+.chain .ch-row{display:flex;align-items:center;justify-content:center;gap:18px;margin:26px 0;}
+.chain .ch-group{display:flex;gap:8px;font-size:64px;}
+.chain .ch-group span{display:inline-block;}
+.chain .ch-op{font-family:'Nunito',sans-serif;font-weight:900;font-size:64px;color:var(--py);margin:0 4px;}
+.chain .ch-total{font-family:'Nunito',sans-serif;font-weight:900;font-size:56px;color:var(--ink);margin-top:10px;}
+.chain .ch-total span{color:var(--green);}
+/* -- 钟表 clock -- */
+.clock-face{width:360px;height:360px;margin:10px auto 0;}
+.cface{width:100%;height:100%;}
+.clock-label{font-family:'Nunito',sans-serif;font-weight:800;font-size:40px;text-align:center;color:var(--ink);margin-top:16px;}
 
 
 @media (prefers-reduced-motion:reduce){
@@ -164,6 +186,7 @@ body.editing .editable{outline:2px dashed var(--blue);outline-offset:4px;cursor:
 .ogroup .apple{opacity:1;transform:none;}
 .ogroup .apple.gone{opacity:.28;}
 .oans{opacity:1;}
+.tenplus .tp-answer{opacity:1;transform:none;}
 }
 
 </style>
