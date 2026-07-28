@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>天地人 · 真声跟读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* === 基础与舞台缩放 === 固定1920x1080，等比适配任意屏幕 */
+:root{
+  --cream:#FFF6E6; --card:#FFFFFF; --ink:#3A3A4A;
+  --orange:#FF9F45; --green:#6FCF7E; --blue:#5AA9E6; --py:#E8743B;
+  --shadow:0 18px 40px rgba(255,159,69,.20);
+}
+*{margin:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  font-family:'Noto Serif SC',serif;
+  overflow:hidden;
+  background:radial-gradient(circle at 30% 20%, #FFFDF6, #FFE4BE 75%);
+}
+.viewport{position:fixed;inset:0;display:grid;place-items:center;}
+.stage{
+  width:1920px;height:1080px;position:relative;transform-origin:center center;
+  background:linear-gradient(160deg,#FFF9EF,#FFF0D6);
+  border-radius:48px;overflow:hidden;
+  box-shadow:0 30px 80px rgba(180,120,40,.28);
+}
+/* === 版面 === */
+.tag{
+  position:absolute;top:64px;left:80px;
+  font-family:'Nunito',sans-serif;font-weight:700;font-size:30px;color:#B07A36;
+  background:#FFF3DF;padding:10px 26px;border-radius:30px;letter-spacing:1px;
+}
+.title{
+  position:absolute;top:150px;left:0;right:0;text-align:center;
+  font-size:120px;color:var(--ink);letter-spacing:30px;padding-left:30px;
+}
+.sub{position:absolute;top:300px;left:0;right:0;text-align:center;font-family:'Nunito',sans-serif;font-weight:700;font-size:34px;color:#C79A5E;letter-spacing:2px;}
+.cards{position:absolute;top:400px;left:0;right:0;display:flex;justify-content:center;gap:70px;}
+/* === 字卡 === */
+.char-card{
+  width:430px;height:540px;background:var(--card);border-radius:40px;
+  box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+  border:7px solid #FFE2BC;
+  animation:pop .7s cubic-bezier(.2,.8,.3,1.25) both;
+}
+.char-card:nth-child(1){border-color:#FFD9A8;animation-delay:.15s;}
+.char-card:nth-child(2){border-color:#C9ECCB;animation-delay:.35s;}
+.char-card:nth-child(3){border-color:#BFE0F7;animation-delay:.55s;}
+.char-card .py{font-family:'Nunito',sans-serif;font-weight:800;font-size:62px;color:var(--py);letter-spacing:3px;}
+.char-card .han{font-size:260px;color:var(--ink);line-height:1;}
+@keyframes pop{0%{opacity:0;transform:translateY(70px) scale(.82)}60%{transform:translateY(-14px) scale(1.04)}100%{opacity:1;transform:translateY(0) scale(1)}}
+/* === 发声按钮 === */
+.speaker{
+  width:96px;height:96px;border-radius:50%;border:none;cursor:pointer;
+  background:var(--orange);color:#fff;font-size:46px;box-shadow:0 10px 24px rgba(255,159,69,.5);
+  transition:transform .15s ease, filter .15s ease;
+  display:flex;align-items:center;justify-content:center;
+}
+.speaker:hover{transform:scale(1.08);}
+.speaker:active{transform:scale(.94);}
+/* === 底部控制 === */
+.dock{position:absolute;bottom:70px;left:0;right:0;display:flex;justify-content:center;gap:28px;}
+.btn{
+  font-family:'Noto Serif SC',serif;font-size:36px;color:#fff;cursor:pointer;border:none;
+  padding:18px 46px;border-radius:40px;background:var(--blue);box-shadow:0 12px 28px rgba(90,169,230,.45);
+  transition:transform .15s ease;
+}
+.btn:hover{transform:translateY(-3px);}
+.btn:active{transform:translateY(1px) scale(.98);}
+.hint{position:absolute;bottom:24px;left:0;right:0;text-align:center;font-family:'Nunito',sans-serif;font-weight:700;font-size:24px;color:#B58A55;}
+</style>
+</head>
+<body>
+<div class="viewport">
+  <div class="stage" id="stage">
+    <div class="tag">一年级上册 · 语文 · 识字一</div>
+    <div class="title">天地人</div>
+    <div class="sub">di shou zhi — 跟着读一读</div>
+    <div class="cards">
+      <div class="char-card"><div class="py">tiān</div><div class="han">天</div><button class="speaker" data-han="天" data-py="tiān">🔊</button></div>
+      <div class="char-card"><div class="py">dì</div><div class="han">地</div><button class="speaker" data-han="地" data-py="dì">🔊</button></div>
+      <div class="char-card"><div class="py">rén</div><div class="han">人</div><button class="speaker" data-han="人" data-py="rén">🔊</button></div>
+    </div>
+    <div class="dock">
+      <button class="btn" id="readAll">🔊 跟我读</button>
+    </div>
+    <div class="hint">点 🔊 听一听，跟着读～</div>
+  </div>
+</div>
+<script>
+function fit(){var s=Math.min(innerWidth/1920,innerHeight/1080);document.getElementById('stage').style.transform='scale('+s+')';}
+addEventListener('resize',fit);fit();
+
+var voices=[];
+function loadVoices(){voices=speechSynthesis.getVoices();}
+loadVoices();if('speechSynthesis' in window) speechSynthesis.onvoiceschanged=loadVoices;
+
+function pickVoice(){return (voices.find(function(v){return /zh/i.test(v.lang);})||voices[0]||null);}
+function speak(text){
+  if(!('speechSynthesis'in window))return;
+  speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text);
+  u.lang='zh-CN';u.rate=0.75;u.pitch=1.1;
+  var v=pickVoice();if(v)u.voice=v;
+  speechSynthesis.speak(u);
+}
+document.querySelectorAll('.speaker').forEach(function(b){
+  b.addEventListener('click',function(){speak(b.dataset.han);});
+});
+document.getElementById('readAll').addEventListener('click',function(){
+  if(!('speechSynthesis'in window))return;
+  speechSynthesis.cancel();
+  var seq=['天','地','人'];
+  seq.forEach(function(h,i){
+    var u=new SpeechSynthesisUtterance(h);u.lang='zh-CN';u.rate=0.75;u.pitch=1.1;
+    var v=pickVoice();if(v)u.voice=v;
+    setTimeout(function(){speechSynthesis.speak(u);},i*900);
+  });
+});
+</script>
+</body>
+</html>
