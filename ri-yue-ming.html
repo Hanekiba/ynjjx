@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>日月明 · 一年级上册</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+
+:root{--cream:#FFF6E6;--card:#FFFFFF;--ink:#3A3A4A;--soft:#FFF3DF;--orange:#FF9F45;--green:#6FCF7E;--blue:#5AA9E6;--py:#E8743B;--shadow:0 18px 40px rgba(255,159,69,.20);}
+*{margin:0;box-sizing:border-box;}html,body{height:100%;}
+body{font-family:'Noto Serif SC',serif;color:var(--ink);overflow:hidden;background:#FFE4BE;}
+.viewport{position:fixed;inset:0;display:grid;place-items:center;}
+.stage{width:1920px;height:1080px;position:relative;transform-origin:center center;overflow:hidden;background:linear-gradient(160deg,#FFF9EF,#FFF0D6);border-radius:48px;box-shadow:0 30px 80px rgba(180,120,40,.28);}
+.bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
+.float{position:absolute;opacity:.4;animation:drift 9s ease-in-out infinite;}
+@keyframes drift{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-30px) rotate(10deg)}}
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s ease;z-index:1;}
+.slide.active{opacity:1;visibility:visible;pointer-events:auto;}
+.r{opacity:0;transform:translateY(46px);}
+.slide.active .r{animation:rise .6s cubic-bezier(.2,.8,.3,1.1) both;animation-delay:calc(var(--i,0)*.12s);}
+@keyframes rise{to{opacity:1;transform:translateY(0);}}
+.tag{position:absolute;top:60px;left:80px;font-family:'Nunito',sans-serif;font-weight:800;font-size:30px;color:#B07A36;background:var(--soft);padding:10px 26px;border-radius:30px;letter-spacing:1px;z-index:2;}
+.title{position:absolute;top:150px;left:0;right:0;text-align:center;font-size:120px;font-weight:900;letter-spacing:24px;padding-left:24px;z-index:2;}
+.sub{position:absolute;top:330px;left:0;right:0;text-align:center;font-family:'Nunito',sans-serif;font-weight:700;font-size:36px;color:#C79A5E;letter-spacing:2px;z-index:2;}
+.hint{position:absolute;bottom:34px;left:0;right:0;text-align:center;font-family:'Nunito',sans-serif;font-weight:700;font-size:24px;color:#B58A55;z-index:2;}
+.nav{position:absolute;bottom:30px;right:60px;display:flex;align-items:center;gap:18px;z-index:3;}
+.navbtn{width:74px;height:74px;border-radius:50%;border:none;cursor:pointer;font-size:34px;color:#fff;background:var(--orange);box-shadow:0 10px 24px rgba(255,159,69,.45);transition:transform .15s;}
+.navbtn:hover{transform:scale(1.07);}.navbtn:active{transform:scale(.93);}
+.homebtn{height:74px;padding:0 30px;border-radius:37px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:28px;color:#fff;background:#9B7BD4;box-shadow:0 10px 24px rgba(155,123,212,.45);display:flex;align-items:center;gap:8px;transition:transform .15s;}
+.homebtn:hover{transform:scale(1.05);}.homebtn:active{transform:scale(.95);}
+.dots{position:absolute;bottom:46px;left:0;right:0;display:flex;justify-content:center;gap:16px;z-index:3;}
+.dot{width:16px;height:16px;border-radius:50%;background:#E7C79A;cursor:pointer;transition:transform .2s,background .2s;}
+.dot.on{background:var(--orange);transform:scale(1.35);}
+.counter{position:absolute;bottom:34px;left:60px;font-family:'Nunito',sans-serif;font-weight:800;font-size:26px;color:#B58A55;z-index:3;}
+.speaker{width:80px;height:80px;border-radius:50%;border:none;cursor:pointer;background:var(--blue);color:#fff;font-size:38px;box-shadow:0 10px 24px rgba(90,169,230,.5);display:flex;align-items:center;justify-content:center;transition:transform .15s;}
+.speaker:hover{transform:scale(1.08);}.speaker:active{transform:scale(.94);}
+body.editing .editable{outline:2px dashed var(--blue);outline-offset:4px;cursor:text;}
+.voicebar{position:absolute;top:58px;right:60px;z-index:4;display:flex;align-items:center;gap:10px;background:var(--soft);padding:8px 16px;border-radius:22px;font-family:'Nunito',sans-serif;font-weight:800;font-size:22px;color:#B07A36;box-shadow:0 8px 18px rgba(255,159,69,.18);}
+.voicebar select{font-family:'Nunito',sans-serif;font-weight:700;font-size:18px;border:none;background:#fff;border-radius:12px;padding:6px 10px;color:var(--ink);cursor:pointer;max-width:240px;}
+.voicebar input[type=range]{width:110px;cursor:pointer;}
+
+
+/* 汉字 BC 混搭：活字做动作 + 一闪变身后代表物 + ✨ */
+.cards{position:absolute;top:310px;left:0;right:0;bottom:120px;display:grid;grid-template-columns:repeat(4,200px);grid-auto-rows:200px;gap:18px 22px;justify-content:center;align-content:center;z-index:2;padding:0 60px;}
+.card{width:200px;height:200px;background:var(--card);border-radius:26px;box-shadow:var(--shadow);border:5px solid #FFE2BC;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;gap:2px;padding:6px;}
+.glyphbox{position:relative;width:118px;height:118px;display:flex;align-items:center;justify-content:center;margin-bottom:0;}
+.glyphwrap{font-size:90px;font-weight:900;color:var(--ink);line-height:1;position:relative;z-index:2;}
+.obj{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:74px;opacity:0;z-index:1;}
+.spark{position:absolute;font-size:30px;opacity:0;top:6px;right:8px;z-index:3;}
+.slide.active .card .glyphwrap{animation:swapG 4.6s ease-in-out infinite;animation-delay:calc(var(--i,0)*.35s);}
+.slide.active .card .obj{animation:swapM 4.6s ease-in-out infinite;animation-delay:calc(var(--i,0)*.35s);}
+.slide.active .card .spark{animation:spark 4.6s ease-in-out infinite;animation-delay:calc(var(--i,0)*.35s);}
+@keyframes swapG{0%,40%{opacity:1}55%,92%{opacity:0}100%{opacity:1}}
+@keyframes swapM{0%,40%{opacity:0;transform:scale(.6)}55%,92%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.6)}}
+@keyframes spark{0%,46%{opacity:0;transform:scale(.4)}54%{opacity:1;transform:scale(1.3)}66%,100%{opacity:0;transform:scale(.6)}}
+.live-bob{animation:bob 2s ease-in-out infinite;}@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+.live-float{animation:floaty 3s ease-in-out infinite;}@keyframes floaty{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-12px) rotate(4deg)}}
+.live-hop{animation:hop 1.6s ease-in-out infinite;}@keyframes hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-24px)}60%{transform:translateY(-24px)}}
+.live-spin{animation:spin 3.4s linear infinite;}@keyframes spin{to{transform:rotate(360deg)}}
+.live-pulse{animation:pulse 1.8s ease-in-out infinite;}@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.card .cspeak{width:50px;height:50px;font-size:24px;margin-top:6px;box-shadow:0 6px 14px rgba(90,169,230,.45);}
+/* 组词卡 */
+.words{position:absolute;top:380px;left:0;right:0;display:flex;justify-content:center;gap:54px;flex-wrap:wrap;z-index:2;padding:0 80px;}
+.wcard{background:var(--card);border-radius:28px;box-shadow:var(--shadow);border:6px solid #FFE2BC;padding:22px 28px;min-width:210px;text-align:center;}
+.wcard .wc{font-size:78px;font-weight:900;color:var(--py);}
+.wcard .wl{margin-top:10px;font-size:32px;color:var(--ink);font-family:'Nunito';font-weight:700;}
+/* 读一读 / 儿歌 */
+.poem{position:absolute;top:400px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:22px;z-index:2;}
+.pline{font-size:62px;font-weight:700;color:var(--ink);letter-spacing:6px;}
+/* 练一练 点揭晓 */
+.qrow{position:absolute;top:430px;left:0;right:0;display:flex;justify-content:center;flex-wrap:wrap;gap:60px;z-index:2;}
+.qmath{font-family:'Nunito',sans-serif;font-weight:900;font-size:92px;background:var(--card);border-radius:30px;box-shadow:var(--shadow);padding:22px 42px;border:6px solid #FFE2BC;cursor:pointer;display:flex;align-items:center;gap:16px;transition:transform .15s;position:relative;}
+.qmath:hover{transform:translateY(-4px);}
+.qmath .sign{color:var(--orange);opacity:0;transform:scale(.3);transition:.3s;font-size:64px;}
+.qmath.show .sign{opacity:1;transform:scale(1);}
+.qmath .fx{position:absolute;top:-28px;right:-18px;font-size:46px;opacity:0;}
+.qmath.show .fx{animation:burst .7s ease forwards;}
+@keyframes burst{0%{opacity:0;transform:scale(.2) rotate(0)}50%{opacity:1;transform:scale(1.3) rotate(20deg)}100%{opacity:0;transform:scale(1) rotate(0)}}
+/* 数一数 / 实物篮 */
+.compare{position:absolute;top:380px;left:0;right:0;display:flex;justify-content:center;gap:120px;z-index:2;}
+.basket{display:flex;flex-direction:column;align-items:center;gap:14px;background:var(--card);border-radius:34px;box-shadow:var(--shadow);padding:28px 46px;border:6px solid #FFE2BC;}
+.basket .cap{font-family:'Nunito',sans-serif;font-weight:900;font-size:42px;color:var(--py);}
+.objrow{display:flex;gap:14px;justify-content:center;font-size:58px;flex-wrap:wrap;max-width:520px;}
+.apple{display:inline-block;opacity:0;position:relative;}
+.apple i{position:absolute;top:-16px;left:-12px;font-family:'Nunito',sans-serif;font-weight:900;font-size:24px;color:#fff;background:var(--orange);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(255,159,69,.5);}
+.slide.active .apple{animation:drop .5s cubic-bezier(.2,.9,.3,1.4) both;animation-delay:calc(.3s + var(--i,0)*.26s);}
+@keyframes drop{0%{opacity:0;transform:translateY(-46px) scale(.4)}70%{opacity:1;transform:translateY(8px) scale(1.12)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.total{font-family:'Nunito',sans-serif;font-weight:900;font-size:40px;color:var(--py);margin-top:4px;}
+.speak-count{margin-top:16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:28px;color:#fff;background:var(--green);border:none;padding:14px 34px;border-radius:34px;cursor:pointer;box-shadow:0 10px 24px rgba(111,207,126,.45);transition:transform .15s;}
+.speak-count:hover{transform:translateY(-3px);}.speak-count:active{transform:scale(.96);}
+/* 配对演示：先数 → 一一配对 → 看谁多出来 → 写符号 */
+.lead{position:absolute;top:150px;left:0;right:0;text-align:center;font-size:40px;font-weight:700;color:#C79A5E;z-index:2;}
+.match{position:absolute;top:280px;left:50%;transform:translateX(-50%);width:760px;height:470px;z-index:2;}
+.row{position:absolute;left:0;right:0;}
+.row.top{top:0;}.row.bot{top:220px;}
+.match .apple{position:absolute;width:80px;height:80px;font-size:74px;line-height:80px;text-align:center;}
+.match.show-apples .apple{opacity:1;transform:translateY(0);}
+.lines{position:absolute;top:0;left:0;width:760px;height:300px;pointer-events:none;overflow:visible;}
+.lines line{stroke:var(--orange);stroke-width:7;stroke-linecap:round;stroke-dasharray:320;stroke-dashoffset:320;transition:stroke-dashoffset .5s;}
+.match.show-lines .lines line{stroke-dashoffset:0;}
+.match.show-lines .lines line:nth-child(2){transition-delay:.35s;}
+.match.show-lines .lines line:nth-child(3){transition-delay:.7s;}
+.match.show-lines .lines line:nth-child(4){transition-delay:1.05s;}
+.apple.extra{transition:opacity .5s,transform .5s,box-shadow .3s;}
+.match.show-extra .apple.extra{box-shadow:0 0 0 7px var(--green),0 0 30px rgba(111,207,126,.7);transform:translateY(0) scale(1.14);}
+.plus{position:absolute;font-family:'Nunito',sans-serif;font-weight:900;font-size:32px;color:#fff;background:var(--green);padding:8px 18px;border-radius:24px;opacity:0;transition:opacity .4s,transform .4s;transform:translateY(-6px);}
+.match.show-extra .plus{opacity:1;transform:translateY(0);}
+.psym{position:absolute;top:340px;left:0;right:0;text-align:center;font-family:'Nunito',sans-serif;font-weight:900;font-size:128px;color:var(--orange);opacity:0;transform:scale(.4);transition:opacity .5s,transform .5s;}
+.match.show-sym .psym{opacity:1;transform:scale(1);}
+.pstep{position:absolute;top:430px;left:0;right:0;text-align:center;font-family:'Nunito',sans-serif;font-weight:700;font-size:28px;color:#B58A55;}
+/* 认数字 1~5 */
+.nums{position:absolute;top:380px;left:0;right:0;display:flex;justify-content:center;gap:44px;z-index:2;}
+.numcol{display:flex;flex-direction:column;align-items:center;gap:12px;background:var(--card);border-radius:28px;box-shadow:var(--shadow);border:6px solid #FFE2BC;padding:22px 24px;min-width:170px;}
+.numcol .nd{font-family:'Nunito';font-weight:900;font-size:92px;color:var(--py);}
+.numcol .nrow{font-size:44px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:200px;}
+.numcol .apple{opacity:0;}
+.slide.active .numcol .apple{animation:drop .5s cubic-bezier(.2,.9,.3,1.4) both;animation-delay:calc(var(--i,0)*.18s);}
+/* 第几：排队看位置 */
+.ord{position:absolute;top:330px;left:0;right:0;display:flex;justify-content:center;gap:28px;z-index:2;padding:0 60px;}
+.oitem{display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;transform:translateY(30px);transition:transform .3s,box-shadow .3s;}
+.slide.active .oitem{animation:rise .6s cubic-bezier(.2,.8,.3,1.1) both;animation-delay:calc(var(--i,0)*.12s);}
+.oemoji{font-size:92px;width:140px;height:140px;display:flex;align-items:center;justify-content:center;background:var(--card);border-radius:30px;box-shadow:var(--shadow);border:6px solid #FFE2BC;}
+.olabel{font-family:'Nunito',sans-serif;font-weight:900;font-size:34px;color:var(--py);}
+.oitem.hi .oemoji{box-shadow:0 0 0 8px var(--green),0 0 30px rgba(111,207,126,.6);transform:scale(1.08);}
+.oitem.hi .olabel{color:var(--green);}
+.oq{position:absolute;top:650px;left:0;right:0;text-align:center;font-family:'Nunito',sans-serif;font-weight:800;font-size:40px;color:var(--ink);z-index:2;}
+.oans{position:absolute;top:726px;left:0;right:0;text-align:center;font-family:'Nunito',sans-serif;font-weight:900;font-size:44px;color:var(--green);z-index:2;opacity:0;transform:translateY(10px);transition:opacity .3s,transform .3s;pointer-events:none;}
+.oans.show{opacity:1;transform:none;pointer-events:auto;}
+.ord-go{margin-top:14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:26px;color:#fff;background:var(--blue);border:none;padding:12px 30px;border-radius:30px;cursor:pointer;box-shadow:0 10px 24px rgba(90,169,230,.45);transition:transform .15s;display:inline-flex;align-items:center;gap:8px;position:relative;z-index:3;}
+.ord-go:hover{transform:translateY(-3px);}.ord-go:active{transform:scale(.96);}
+/* 分与合 */
+.split{position:absolute;top:380px;left:0;right:0;display:flex;justify-content:center;gap:64px;flex-wrap:wrap;z-index:2;padding:0 60px;}
+.scombo{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--card);border-radius:28px;box-shadow:var(--shadow);border:6px solid #FFE2BC;padding:18px 26px;}
+.stop{font-family:'Nunito',sans-serif;font-weight:900;font-size:92px;color:var(--py);line-height:1;}
+.smid{width:0;height:26px;border-left:5px solid var(--orange);}
+.sbot{display:flex;gap:30px;}
+.spart{font-family:'Nunito',sans-serif;font-weight:900;font-size:72px;color:var(--ink);}
+/* 加法 / 减法 */
+.opwrap{position:absolute;top:400px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;z-index:2;padding:0 60px;}
+.ogroup{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:520px;font-size:58px;}
+.ogroup .apple{position:relative;opacity:0;}
+.slide.active .ogroup .apple{animation:drop .5s cubic-bezier(.2,.9,.3,1.4) both;animation-delay:calc(var(--i,0)*.18s);}
+.op{font-family:'Nunito',sans-serif;font-weight:900;font-size:78px;color:var(--py);}
+.ogroup .apple.gone{opacity:.28;filter:grayscale(1);transform:translateY(-8px);}
+.ogroup .apple.keep{box-shadow:0 0 0 7px var(--green),0 0 26px rgba(111,207,126,.6);border-radius:50%;}
+
+
+@media (prefers-reduced-motion:reduce){
+.slide{transition:none;}
+.slide.active .r{animation:none;opacity:1;transform:none;}
+.apple{opacity:1;transform:none;}
+.card .glyphwrap{animation:none;opacity:1;}
+.card .obj,.card .spark{opacity:0;animation:none;}
+.match .lines line{stroke-dashoffset:0;}
+.match .apple.extra{box-shadow:0 0 0 7px var(--green),0 0 30px rgba(111,207,126,.7);}
+.match .plus{opacity:1;}
+.match .psym{opacity:1;transform:none;}
+.float{animation:none;}
+.qmath .sign{opacity:1;transform:none;}
+.oitem{opacity:1;transform:none;}
+.ogroup .apple{opacity:1;transform:none;}
+.ogroup .apple.gone{opacity:.28;}
+.oans{opacity:1;}
+}
+
+</style>
+</head>
+<body>
+<div class="viewport">
+  <div class="stage" id="stage">
+    <div class="bg"><div class="float" style="left:10%;top:16%;font-size:70px;animation-duration:9s">☀️</div><div class="float" style="right:12%;top:20%;font-size:76px;animation-duration:10.5s">🌙</div><div class="float" style="left:16%;bottom:14%;font-size:82px;animation-duration:12s">🌳</div><div class="float" style="right:16%;bottom:18%;font-size:88px;animation-duration:13.5s">✨</div></div>
+<section class="slide" data-name="封面">
+    <div class="tag r" style="--i:0">一年级上册 · 语文 · 识字（二）</div>
+    <div class="title r" style="--i:1">日月明</div>
+    <div class="sub r" style="--i:2">会意字，真有趣</div>
+    <div class="hint r" style="--i:3">按 → 或空格翻页</div>
+  </section>
+<section class="slide" data-name="认一认">
+    <div class="tag r" style="--i:0">认一认</div>
+    <div class="title r" style="--i:1;font-size:84px">日月明</div>
+    <div class="cards">
+    <div class="card">
+      <div class="glyphbox">
+        <div class="glyphwrap"><div class="glyph live-spin">明</div></div>
+        <div class="obj">☀️🌙</div>
+      </div>
+      <div class="spark">✨</div>
+      <button class="speaker cspeak" data-han="明">🔊</button>
+    </div>
+    <div class="card">
+      <div class="glyphbox">
+        <div class="glyphwrap"><div class="glyph live-pulse">力</div></div>
+        <div class="obj">💪</div>
+      </div>
+      <div class="spark">✨</div>
+      <button class="speaker cspeak" data-han="力">🔊</button>
+    </div>
+    <div class="card">
+      <div class="glyphbox">
+        <div class="glyphwrap"><div class="glyph live-float">尘</div></div>
+        <div class="obj">💧⛰️</div>
+      </div>
+      <div class="spark">✨</div>
+      <button class="speaker cspeak" data-han="尘">🔊</button>
+    </div>
+    <div class="card">
+      <div class="glyphbox">
+        <div class="glyphwrap"><div class="glyph live-bob">从</div></div>
+        <div class="obj">🧍🧍</div>
+      </div>
+      <div class="spark">✨</div>
+      <button class="speaker cspeak" data-han="从">🔊</button>
+    </div>
+    <div class="card">
+      <div class="glyphbox">
+        <div class="glyphwrap"><div class="glyph live-hop">众</div></div>
+        <div class="obj">🧍🧍🧍</div>
+      </div>
+      <div class="spark">✨</div>
+      <button class="speaker cspeak" data-han="众">🔊</button>
+    </div>
+    <div class="card">
+      <div class="glyphbox">
+        <div class="glyphwrap"><div class="glyph live-bob">双</div></div>
+        <div class="obj">✌️</div>
+      </div>
+      <div class="spark">✨</div>
+      <button class="speaker cspeak" data-han="双">🔊</button>
+    </div>
+    <div class="card">
+      <div class="glyphbox">
+        <div class="glyphwrap"><div class="glyph live-float">木</div></div>
+        <div class="obj">🌳</div>
+      </div>
+      <div class="spark">✨</div>
+      <button class="speaker cspeak" data-han="木">🔊</button>
+    </div>
+    <div class="card">
+      <div class="glyphbox">
+        <div class="glyphwrap"><div class="glyph live-spin">林</div></div>
+        <div class="obj">🌳🌳</div>
+      </div>
+      <div class="spark">✨</div>
+      <button class="speaker cspeak" data-han="林">🔊</button>
+    </div>
+    <div class="card">
+      <div class="glyphbox">
+        <div class="glyphwrap"><div class="glyph live-bob">森</div></div>
+        <div class="obj">🌲🌲🌲</div>
+      </div>
+      <div class="spark">✨</div>
+      <button class="speaker cspeak" data-han="森">🔊</button>
+    </div>
+    <div class="card">
+      <div class="glyphbox">
+        <div class="glyphwrap"><div class="glyph live-pulse">条</div></div>
+        <div class="obj">🪵</div>
+      </div>
+      <div class="spark">✨</div>
+      <button class="speaker cspeak" data-han="条">🔊</button>
+    </div>
+    <div class="card">
+      <div class="glyphbox">
+        <div class="glyphwrap"><div class="glyph live-float">心</div></div>
+        <div class="obj">❤️</div>
+      </div>
+      <div class="spark">✨</div>
+      <button class="speaker cspeak" data-han="心">🔊</button>
+    </div></div>
+    <div class="hint">字会变身成对应的东西，点 🔊 听读音</div>
+  </section>
+<section class="slide" data-name="读一读">
+    <div class="tag r" style="--i:0">读一读</div>
+    <div class="title r" style="--i:1;font-size:80px">会意字（一）</div>
+    <div class="poem"><div class="pline r" style="--i:0">日月明，</div><div class="pline r" style="--i:1">田力男。</div><div class="pline r" style="--i:2">小大尖，</div><div class="pline r" style="--i:3">小土尘。</div></div>
+    <div style="position:absolute;top:820px;left:0;right:0;display:flex;justify-content:center;z-index:2"><button class="speak-count" data-seq='["日月明，","田力男。","小大尖，","小土尘。"]'>🔊 读一读</button></div>
+    <div class="hint">一句一句跟着念，点 🔊 听</div>
+  </section>
+<section class="slide" data-name="读一读">
+    <div class="tag r" style="--i:0">读一读</div>
+    <div class="title r" style="--i:1;font-size:80px">会意字（二）</div>
+    <div class="poem"><div class="pline r" style="--i:0">二人从，</div><div class="pline r" style="--i:1">三人众。</div><div class="pline r" style="--i:2">双木林，</div><div class="pline r" style="--i:3">三木森。</div></div>
+    <div style="position:absolute;top:820px;left:0;right:0;display:flex;justify-content:center;z-index:2"><button class="speak-count" data-seq='["二人从，","三人众。","双木林，","三木森。"]'>🔊 读一读</button></div>
+    <div class="hint">一句一句跟着念，点 🔊 听</div>
+  </section>
+<section class="slide" data-name="组词">
+    <div class="tag r" style="--i:0">组词</div>
+    <div class="title r" style="--i:1;font-size:84px">给字找朋友</div>
+    <div class="words">
+    <div class="wcard r" style="--i:0">
+      <div class="wc">明</div>
+      <div class="wl">明天 · 明月</div>
+    </div>
+    <div class="wcard r" style="--i:1">
+      <div class="wc">男</div>
+      <div class="wl">男生 · 男孩</div>
+    </div>
+    <div class="wcard r" style="--i:2">
+      <div class="wc">林</div>
+      <div class="wl">树林 · 山林</div>
+    </div>
+    <div class="wcard r" style="--i:3">
+      <div class="wc">森</div>
+      <div class="wl">森林 · 森森</div>
+    </div>
+    <div class="wcard r" style="--i:4">
+      <div class="wc">从</div>
+      <div class="wl">跟从 · 从前</div>
+    </div>
+    <div class="wcard r" style="--i:5">
+      <div class="wc">众</div>
+      <div class="wl">众人 · 大众</div>
+    </div></div>
+    <div class="hint">一个字能组好几个词</div>
+  </section>
+<section class="slide" data-name="练一练">
+    <div class="tag r" style="--i:0">练一练</div>
+    <div class="title r" style="--i:1;font-size:80px">点一点揭晓读音</div>
+    <div class="qrow">
+    <div class="qmath r" style="--i:0" data-ans="míng">明<span class="sign"></span><span class="fx">☀️</span></div>
+    <div class="qmath r" style="--i:1" data-ans="lì">力<span class="sign"></span><span class="fx">💪</span></div>
+    <div class="qmath r" style="--i:2" data-ans="chén">尘<span class="sign"></span><span class="fx">💧</span></div>
+    <div class="qmath r" style="--i:3" data-ans="cóng">从<span class="sign"></span><span class="fx">🧍</span></div>
+    <div class="qmath r" style="--i:4" data-ans="zhòng">众<span class="sign"></span><span class="fx">👥</span></div>
+    <div class="qmath r" style="--i:5" data-ans="mù">木<span class="sign"></span><span class="fx">🌳</span></div>
+    <div class="qmath r" style="--i:6" data-ans="lín">林<span class="sign"></span><span class="fx">🌲</span></div>
+    <div class="qmath r" style="--i:7" data-ans="sēn">森<span class="sign"></span><span class="fx">🌳</span></div></div>
+    <div class="hint">点一下每道题，看答案还撒星星</div>
+  </section>
+<section class="slide" data-name="小结">
+    <div class="tag r" style="--i:0">小结</div>
+    <div class="title r" style="--i:1;font-size:96px">记住啦</div>
+    <div class="sub r" style="--i:2">两个或以上的字合起来，意思变新，这叫会意字。</div>
+    <div class="hint r" style="--i:3">按 ← 复习，或回目录选下一课</div>
+  </section>
+    <div class="dots" id="dots"></div>
+    <div class="counter" id="counter"></div>
+    <div class="voicebar"><span>🔊 声音</span><select id="voiceSel"></select><span>语速</span><input type="range" id="rateRange" min="0.4" max="1.2" step="0.05" value="0.6"></div>
+    <div class="nav"><button class="homebtn" id="home" title="返回目录">🏠 目录</button><button class="navbtn" id="prev">‹</button><button class="navbtn" id="next">›</button></div>
+  </div>
+</div>
+<script>
+
+function fit(){var s=Math.min(innerWidth/1920,innerHeight/1080);document.getElementById('stage').style.transform='scale('+s+')';}
+addEventListener('resize',fit);fit();
+var slides=[].slice.call(document.querySelectorAll('.slide'));var cur=0;
+function buildDots(){var d=document.getElementById('dots');slides.forEach(function(_,i){var e=document.createElement('div');e.className='dot'+(i===0?' on':'');e.onclick=function(){goto(i);};d.appendChild(e);});}
+function animateCounts(s){s.querySelectorAll('.total').forEach(function(t){var target=+t.dataset.target;t.textContent='共 0 个';clearInterval(t._t);if(target<=0)return;var n=0;t._t=setInterval(function(){n++;t.textContent='共 '+n+' 个';if(n>=target)clearInterval(t._t);},430);});}
+function runPair(m){if(!m)return;m.classList.remove('show-sym','show-extra','show-lines','show-apples');void m.offsetWidth;setTimeout(function(){m.classList.add('show-apples');},200);setTimeout(function(){m.classList.add('show-lines');},1700);setTimeout(function(){m.classList.add('show-extra');var p=m.querySelector('.plus');if(p&&p.dataset.speak)speak(p.dataset.speak);},3100);setTimeout(function(){m.classList.add('show-sym');},4100);}
+function goto(i){i=(i+slides.length)%slides.length;slides.forEach(function(s){s.classList.remove('active');});cur=i;var s=slides[i];s.classList.add('active');s.offsetWidth;animateCounts(s);var m=s.querySelector('.match');if(m)runPair(m);
+  document.querySelectorAll('.dot').forEach(function(d,k){d.classList.toggle('on',k===i);});
+  document.getElementById('counter').textContent=(i+1)+' / '+slides.length;}
+document.getElementById('next').onclick=function(){goto(cur+1);};
+document.getElementById('prev').onclick=function(){goto(cur-1);};
+document.getElementById('home').onclick=function(){location.href='index.html';};
+addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();goto(cur+1);}if(e.key==='ArrowLeft'||e.key==='PageUp'){goto(cur-1);}});
+var x0=null;addEventListener('touchstart',function(e){x0=e.touches[0].clientX;});
+addEventListener('touchend',function(e){if(x0===null)return;var dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50){dx<0?goto(cur+1):goto(cur-1);}x0=null;});
+buildDots();
+document.querySelectorAll('.qmath').forEach(function(q){q.addEventListener('click',function(){q.classList.add('show');q.querySelector('.sign').textContent=q.dataset.ans;});});
+document.querySelectorAll('.ord-go').forEach(function(b){b.addEventListener('click',function(){var sl=b.closest('.slide');var idx=+b.dataset.hi;sl.querySelectorAll('.oitem').forEach(function(it,k){it.classList.toggle('hi',k===idx);});var ans=sl.querySelector('.oans');if(ans){ans.classList.add('show');}if(b.dataset.han)speak(b.dataset.han);});});
+var voices=[];var VOICE_KEY='yt-voice';var currentVoiceName=localStorage.getItem(VOICE_KEY)||'';var RATE_KEY='yt-rate';var currentRate=parseFloat(localStorage.getItem(RATE_KEY))||0.6;
+function zhVoices(){return voices.filter(function(v){return /zh/i.test(v.lang);});}
+function resolveVoice(){var z=zhVoices();if(!z.length)z=voices;if(!z.length)return null;if(currentVoiceName){var f=z.find(function(v){return v.name===currentVoiceName;});if(f)return f;}var pref=['Neural','Xiaoxiao','Yunxi','Yunyang','Ting-Ting','Google','Premium','Huihui','Yaoyao','Kangkang','XiaoIce','Microsoft'];for(var p=0;p<pref.length;p++){var m=z.find(function(v){return v.name.indexOf(pref[p])>=0;});if(m)return m;}return z[0];}
+function pickVoice(){return resolveVoice();}
+function fillVoices(){var sel=document.getElementById('voiceSel');if(!sel)return;if(!('speechSynthesis'in window)){sel.innerHTML='<option>浏览器不支持朗读</option>';sel.disabled=true;return;}var all=voices;if(!all.length){sel.innerHTML='<option>本机未安装语音</option>';sel.disabled=true;return;}sel.disabled=false;sel.innerHTML='';all.forEach(function(v){var o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.lang+')';sel.appendChild(o);});if(currentVoiceName&&all.some(function(v){return v.name===currentVoiceName;}))sel.value=currentVoiceName;else{var d=resolveVoice();if(d)sel.value=d.name;}}
+function loadVoices(){voices=speechSynthesis.getVoices();fillVoices();}
+if('speechSynthesis' in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;setTimeout(loadVoices,800);}
+var _vs=document.getElementById('voiceSel');if(_vs)_vs.addEventListener('change',function(){currentVoiceName=_vs.value;localStorage.setItem(VOICE_KEY,currentVoiceName);});
+var _rs=document.getElementById('rateRange');if(_rs){_rs.value=currentRate;_rs.addEventListener('input',function(){currentRate=parseFloat(_rs.value);localStorage.setItem(RATE_KEY,currentRate);});}
+function speak(t){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang='zh-CN';u.rate=currentRate;u.pitch=1.1;var v=pickVoice();if(v)u.voice=v;speechSynthesis.speak(u);}
+function speakSeq(arr){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();arr.forEach(function(w,i){var u=new SpeechSynthesisUtterance(w);u.lang='zh-CN';u.rate=currentRate;u.pitch=1.1;var v=pickVoice();if(v)u.voice=v;setTimeout(function(){speechSynthesis.speak(u);},i*(currentRate<0.6?800:650));});}
+document.querySelectorAll('[data-seq]').forEach(function(b){b.addEventListener('click',function(){try{speakSeq(JSON.parse(b.dataset.seq));}catch(e){}});});
+document.querySelectorAll('.speaker').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();speak(b.dataset.han);});});
+addEventListener('keydown',function(e){if(e.key==='e'||e.key==='E'){document.body.classList.toggle('editing');}});
+document.body.addEventListener('click',function(){if(document.body.classList.contains('editing')){document.querySelectorAll('[contenteditable]').forEach(function(el){el.contentEditable='true';});}});
+
+</script>
+</body>
+</html>
