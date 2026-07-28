@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>口耳目手足 · 一年级上册</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +12,7 @@
 :root{--cream:#FFF6E6;--card:#FFFFFF;--ink:#3A3A4A;--soft:#FFF3DF;--orange:#FF9F45;--green:#6FCF7E;--blue:#5AA9E6;--py:#E8743B;--shadow:0 18px 40px rgba(255,159,69,.20);}
 *{margin:0;box-sizing:border-box;}html,body{height:100%;}
 body{font-family:'Noto Serif SC',serif;color:var(--ink);overflow:hidden;background:#FFE4BE;}
-.viewport{position:fixed;inset:0;display:grid;place-items:center;}
+.viewport{position:fixed;inset:0;overflow:auto;display:flex;align-items:center;justify-content:center;-webkit-overflow-scrolling:touch;}
 .stage{width:1920px;height:1080px;position:relative;transform-origin:center center;overflow:hidden;background:linear-gradient(160deg,#FFF9EF,#FFF0D6);border-radius:48px;box-shadow:0 30px 80px rgba(180,120,40,.28);}
 .bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
 .float{position:absolute;opacity:.4;animation:drift 9s ease-in-out infinite;}
@@ -298,8 +298,12 @@ body.editing .editable{outline:2px dashed var(--blue);outline-offset:4px;cursor:
 </div>
 <script>
 
-function fit(){var s=Math.min(innerWidth/1920,innerHeight/1080);document.getElementById('stage').style.transform='scale('+s+')';}
-addEventListener('resize',fit);fit();
+function fit(){var vp=document.querySelector('.viewport');var w=vp?vp.clientWidth:innerWidth;var h=vp?vp.clientHeight:innerHeight;var s=Math.min(w/1920,h/1080);var st=document.getElementById('stage');if(st)st.style.transform='scale('+s+')';}
+function fitSoon(){fit();requestAnimationFrame(fit);setTimeout(fit,250);setTimeout(fit,800);}
+if(document.readyState!=='loading')fitSoon();else addEventListener('DOMContentLoaded',fitSoon);
+addEventListener('load',fitSoon);
+addEventListener('resize',fit);
+addEventListener('orientationchange',fit);
 var slides=[].slice.call(document.querySelectorAll('.slide'));var cur=0;
 function buildDots(){var d=document.getElementById('dots');slides.forEach(function(_,i){var e=document.createElement('div');e.className='dot'+(i===0?' on':'');e.onclick=function(){goto(i);};d.appendChild(e);});}
 function animateCounts(s){s.querySelectorAll('.total').forEach(function(t){var target=+t.dataset.target;t.textContent='共 0 个';clearInterval(t._t);if(target<=0)return;var n=0;t._t=setInterval(function(){n++;t.textContent='共 '+n+' 个';if(n>=target)clearInterval(t._t);},430);});}
