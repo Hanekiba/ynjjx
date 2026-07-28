@@ -1,0 +1,36 @@
+name: Deploy to GitHub Pages
+
+# 推送到 main 分支时，自动构建并发布到 GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}   # 也支持在 Actions 页手动触发
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只跑一个发布任务，新的会取消旧的
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Pages
+        uses: actions/configure-pages@v5
+
+      - name: 打包站点（仓库根目录的全部静态文件）
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: 发布到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,8 @@
+.workbuddy/
+docs/
+demo-*.html
+gen-build.js
+gen-manifest.js
+validate.js
+CONTEXT.md
+人工检错清单.md
